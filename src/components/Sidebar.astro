@@ -1,0 +1,52 @@
+  <button style="position: fixed; right: 15px; bottom: 15px; z-index: 1; color: rgba(0, 0, 0, 0.5); margin: 0;" onclick="location.href='https://usernamenotavailable12.github.io/src-js/dist/Amlib.min.js';" >Amlib JS v1.1</button>
+
+  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+  <nav id="sidebar" class="open">
+    <div class="logo">
+      <button style="all: unset; cursor: pointer" onclick="window.location.href = '/'">
+        <img
+          src="https://images.takeshape.io/ab111b19-bba2-4cbc-88b1-02bc9b72a93a/dev/0f64b6fb-3f28-4beb-82cd-e6a71fccdf5d/32x32%20(2).svg"
+          alt="Logo" width="44" height="44" />
+      </button>
+    </div>
+    <ul>
+      <li>
+        <a href="/loot-boxes" >User's Loot
+          Boxes</a>
+      </li>
+      <li>
+        <a href="/syndicate-sessions">Betpool
+          Session Stats</a>
+      </li>
+      <li>
+        <a href="/syndicat-session-update">Betpool
+          Validity Update</a>
+      </li>
+      <li>
+        <a href="/pending-withdrawal" class="beta">Pending WD Stats</a>
+      </li>
+      <li>
+        <a href="/recent-win">User's Latest Wins</a>
+      </li>
+      <li>
+        <a href="/amusnet-jackpot">Amusnet
+          Jackpots</a>
+      </li>
+      <li>
+        <a href="/egt-jackpot">EGT Digital
+          Jackpots</a>
+      </li>
+      <li>
+        <a style="color: rgb(122, 202, 122);" href="https://usernamenotavailable12.github.io/amb-api-doc/" target="_blank">API</a>
+      </li>
+    </ul>
+    <ul style="display: none" id="legacy">
+      <li>
+        <a href="/balance-adjust">Balance Adjust</a>
+      </li>
+      <li>
+        <a href="/wg-calculator" onclick="loadFrame('https://usernamenotavailable12.github.io/wg-calculator/')">WG Calculator</a>
+      </li>
+    </ul>
+    <button onclick="toggleDisplay()">Legacy Apps</button>
+  </nav>
