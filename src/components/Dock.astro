@@ -1,0 +1,218 @@
+<style>
+  .doc-nav-bar {
+    position: fixed !important;
+    bottom: 20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+  }
+  .doc-list {
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
+    align-items: flex-end;
+    margin-bottom: 0;
+    padding-left: 0;
+    font-size: 1.4vw;
+    max-width: 600px;
+    background-color: rgb(207, 207, 207, .0);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background-image: radial-gradient(rgb(255, 255, 255, .4), rgb(199, 199, 199, .4));
+    /*       background-image: radial-gradient(rgb(0, 23, 85),rgb(8, 0, 31)); */
+    padding: 10px;
+    border-radius: 10px;
+    border: solid 3px rgb(4, 0, 54, .2);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    z-index: 99999;
+  }
+
+  .doc-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 5em;
+    position: relative;
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+    &:hover {
+      width: 7em;
+
+      +li {
+        width: 6em !important;
+      }
+    }
+
+    &:has(+ li:hover) {
+      width: 6em !important;
+    }
+  }
+
+  /* Hover state for current item */
+  .doc-item.hover {
+    width: 8em;
+  }
+
+  /* Sibling adjustments */
+  .doc-item.sibling-close {
+    width: 7em;
+  }
+
+  .doc-item.sibling-far {
+    width: 6em;
+  }
+
+  .doc-item__link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    padding: 0 0.5em;
+    z-index: 1;
+    pointer-events: auto;
+  }
+
+  .image {
+    width: 100%;
+    object-fit: contain;
+  }
+
+  .doc-item__tooltip {
+    position: absolute;
+    top: 0;
+    transform: translate(0, -80%);
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 0.25em;
+    padding: 0.4em 0.5em;
+    color: white;
+    font-size: 1em;
+    white-space: nowrap;
+    font-weight: 400;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .doc-item:hover .doc-item__tooltip {
+    opacity: 1;
+    transform: translate(0, -140%);
+  }
+  #hide-dock {
+    all: unset;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    cursor: pointer;
+    font-size: 17px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background-image: radial-gradient(rgb(255, 255, 255, .4), rgb(199, 199, 199, .4));
+    padding: 4px;
+    padding-top: 6px;
+    border-radius: 7px;
+    transition: all 200ms ease-in-out;
+    border: solid 3px rgb(4, 0, 54, .2);
+    font-weight: bold;
+    line-height: 1;
+    margin-top: -5px;
+    &:hover {
+      border: solid 3px rgb(4, 0, 54, .2);
+    }
+  }
+</style>
+<div class="doc-nav-bar">
+  <ul style="display: none;" id="doc-nav-bar" class="doc-list">
+    <li class="doc-item">
+      <a target="_blank" href="https://portal.themill.io/en/" class="doc-item__link">
+        <img
+          src="https://images.takeshape.io/5da2b4d5-59f6-412a-82c3-f6a272b532be/dev/2445e500-9817-41fb-a1eb-ffd1f37d78d8/logo-red.svg"
+          loading="eager" alt="Notion app icon" class="image" />
+      </a>
+      <div class="doc-item__tooltip">
+        <div>Prod Backoffice</div>
+      </div>
+    </li>
+    <li class="doc-item">
+      <a target="_blank" href="https://backoffice-tma-stg.themill.tech/en/" class="doc-item__link">
+        <img style="filter: invert();"
+          src="https://images.takeshape.io/5da2b4d5-59f6-412a-82c3-f6a272b532be/dev/2445e500-9817-41fb-a1eb-ffd1f37d78d8/logo-red.svg"
+          loading="eager" alt="Asana app icon" class="image" />
+      </a>
+      <div class="doc-item__tooltip">
+        <div>Stg Backoffice</div>
+      </div>
+    </li>
+    <li class="doc-item">
+      <a target="_blank" href="https://www.ambassadoribet.com/ka/?cache=no" class="doc-item__link">
+        <img
+          src="https://images.takeshape.io/ab111b19-bba2-4cbc-88b1-02bc9b72a93a/dev/0f64b6fb-3f28-4beb-82cd-e6a71fccdf5d/32x32%20(2).svg"
+          loading="eager" alt="Slack app icon" class="image" />
+      </a>
+      <div class="doc-item__tooltip">
+        <div>Production</div>
+      </div>
+    </li>
+    <li class="doc-item">
+      <a target="_blank" href="https://stg.ambassadoribet.com/en/?cache=no" class="doc-item__link">
+        <img style="filter: hue-rotate(100deg);"
+          src="https://images.takeshape.io/ab111b19-bba2-4cbc-88b1-02bc9b72a93a/dev/0f64b6fb-3f28-4beb-82cd-e6a71fccdf5d/32x32%20(2).svg"
+          loading="eager" alt="Loom app icon" class="image" />
+      </a>
+      <div class="doc-item__tooltip">
+        <div>Staging</div>
+      </div>
+    </li>
+    <li class="doc-item">
+      <a target="_blank" href="sb2admin-altenar2.biahosted.com/" class="doc-item__link">
+        <img style="border-radius: 10px;" src="https://favicons.teamtailor-cdn.com/lettericons/B-120-008dc7.png"
+          loading="eager" alt="Spotify app icon" class="image" />
+      </a>
+      <div class="doc-item__tooltip">
+        <div>Prod Altenar</div>
+      </div>
+    </li>
+    <li class="doc-item">
+      <a target="_blank" href="sb2admin-altenar2-stage.biahosted.com/" class="doc-item__link">
+        <img style="filter: invert(); border-radius: 10px;"
+          src="https://favicons.teamtailor-cdn.com/lettericons/B-120-008dc7.png" loading="eager" alt="Webflow app icon"
+          class="image" />
+      </a>
+      <div class="doc-item__tooltip">
+        <div>Stg Altenar</div>
+      </div>
+    </li>
+    <li class="doc-item">
+      <a target="_blank"
+        href="https://app.takeshape.io/project/5da2b4d5-59f6-412a-82c3-f6a272b532be/branch/production/data"
+        class="doc-item__link">
+        <img
+          src="https://images.takeshape.io/5da2b4d5-59f6-412a-82c3-f6a272b532be/dev/a0f509e6-cd40-430c-84c7-c561594bcaa6/takeshape_icon.avif?auto=format%2Ccompress"
+          loading="eager" alt="" class="image" />
+      </a>
+      <div class="doc-item__tooltip">
+        <div>Prod CMS</div>
+      </div>
+    </li>
+    <li class="doc-item">
+      <a target="_blank"
+        href="https://app.takeshape.io/project/f2b70d9b-56f9-4d2d-be98-874fcbc02a46/branch/production/data"
+        class="doc-item__link">
+        <img style="filter: hue-rotate(100deg);"
+          src="https://images.takeshape.io/5da2b4d5-59f6-412a-82c3-f6a272b532be/dev/a0f509e6-cd40-430c-84c7-c561594bcaa6/takeshape_icon.avif?auto=format%2Ccompress"
+          loading="eager" alt="Adobe Illustrator app icon" class="image" />
+      </a>
+      <div class="doc-item__tooltip">
+        <div>Stg CMS</div>
+      </div>
+    </li>
+
+  </ul>
+  <button onclick="toggleDock()" id="hide-dock">↓ </button>
+</div>

@@ -24,3 +24,31 @@ window.toggleDisplay = function () {
 window.refreshPage = function () {
   location.reload();
 };
+
+
+/* dock button */
+
+/* dock button */
+
+document.addEventListener("DOMContentLoaded", function () {
+  const dock = document.getElementById("doc-nav-bar");
+  const toggleButton = document.getElementById("hide-dock");
+
+  // Load state from localStorage
+  const isHidden = localStorage.getItem("dockHidden") === "true";
+
+  // Apply visibility before rendering
+  dock.style.display = isHidden ? "none" : "flex";
+  toggleButton.innerText = isHidden ? "↑" : "↓";
+
+  // Attach toggle function to button
+  toggleButton.addEventListener("click", function () {
+    const isCurrentlyHidden = dock.style.display === "none";
+
+    dock.style.display = isCurrentlyHidden ? "flex" : "none";
+    toggleButton.innerText = isCurrentlyHidden ? "↓" : "↑";
+    localStorage.setItem("dockHidden", isCurrentlyHidden ? "false" : "true");
+  });
+});
+
+
