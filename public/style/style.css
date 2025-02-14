@@ -224,3 +224,16 @@
     }
     
   }
+
+  .deprecated {
+    display: flex;
+    flex-direction: column-reverse;
+    &::after {
+      content: 'deprecated';
+      border-radius: 5px;
+      width: fit-content;
+      font-size: 9px;
+      opacity: .8;
+    }
+    
+  }
