@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syndicate Session Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 94%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .success-message,
+        .error-message {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .success-message {
+            color: green;
+        }
+
+        .error-message {
+            color: red;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container" id="app">
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Email</label>
+                <input type="email" id="username" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn">Login</button>
+        </form>
+
+        <form id="user-query-form" style="display: none;">
+            <div class="form-group">
+                <label for="usersId">Users ID</label>
+                <input type="text" id="usersId" placeholder="userID, userID, userID ..." required>
+            </div>
+            <button type="submit" class="btn">Fetch Data</button>
+        </form>
+
+        <div id="success-message" class="success-message"></div>
+        <div id="error-message" class="error-message"></div>
+        <div id="table-container"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const url = "https://api-tma1-prd.themill.tech/gql";
+            const loginForm = document.getElementById("login-form");
+            const userQueryForm = document.getElementById("user-query-form");
+            const successMessage = document.getElementById("success-message");
+            const errorMessage = document.getElementById("error-message");
+            const tableContainer = document.getElementById("table-container");
+            let authToken = null;
+
+            loginForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const username = document.getElementById("username").value;
+                const password = document.getElementById("password").value;
+
+                const loginPayload = {
+                    query: `
+                    mutation Login($input: LoginInput!) {
+                        login(input: $input) {
+                            refreshToken
+                        }
+                    }
+                `,
+                    variables: {
+                        input: {
+                            brandId: "ab",
+                            username: username,
+                            password: password
+                        }
+                    }
+                };
+
+                try {
+                    const response = await fetch(url, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(loginPayload)
+                    });
+
+                    const data = await response.json();
+                    if (data?.data?.login?.refreshToken) {
+                        authToken = data.data.login.refreshToken;
+                        loginForm.style.display = "none";
+                        userQueryForm.style.display = "block";
+                        successMessage.textContent = "Login successful!";
+                        errorMessage.textContent = "";
+                    } else {
+                        throw new Error("Invalid login credentials");
+                    }
+                } catch (error) {
+                    errorMessage.textContent = "Error during login: " + error.message;
+                }
+            });
+
+            userQueryForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const usersIdInput = document.getElementById("usersId").value;
+                const userIds = usersIdInput.split(',').map(id => id.trim()).filter(id => id);
+                
+                if (userIds.length === 0) {
+                    errorMessage.textContent = "Please enter at least one user ID";
+                    return;
+                }
+                
+                let allUserData = [];
+                successMessage.textContent = `Processing ${userIds.length} users...`;
+                
+                try {
+                    // Process each user ID
+                    for (const userId of userIds) {
+                        const queryPayload = {
+                            query: `query UserConnection($userId: ID) {
+                            userConnection(userId: $userId) {
+                                edges {
+                                node {
+                                    userId
+                                    nickname
+                                    phone
+                                }
+                                }
+                            }
+                            }`,
+                            variables: {
+                                userId: userId 
+                            }
+                        };
+                        
+                        const response = await fetch(url, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${authToken}`
+                            },
+                            body: JSON.stringify(queryPayload)
+                        });
+
+                        const data = await response.json();
+                        
+                        if (data?.data?.userConnection?.edges?.length > 0)  {
+                            const userData = data.data.userConnection.edges[0].node;
+                            allUserData.push(userData);
+                        } else {
+                            console.warn(`No data found for user ID: ${userId}`);
+                        }
+                    }
+                    
+                    if (allUserData.length > 0) {
+                        renderTable(allUserData);
+                        successMessage.textContent = `Successfully loaded data for ${allUserData.length} users`;
+                        errorMessage.textContent = "";
+                    } else {
+                        throw new Error("No data found for any of the provided user IDs");
+                    }
+                } catch (error) {
+                    errorMessage.textContent = "Error fetching data: " + error.message;
+                }
+            });
+
+            function renderTable(users) {
+                const tableHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User ID</th>
+                                <th>Nickname</th>
+                                <th>Phone</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users.map(user => `
+                                <tr>
+                                    <td>${user.userId}</td>
+                                    <td>${user.nickname || 'N/A'}</td>
+                                    <td>${user.phone || 'N/A'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <button class="btn" onclick="downloadExcel()">Download Excel</button>
+                `;
+                tableContainer.innerHTML = tableHTML;
+            }
+
+            window.downloadExcel = function () {
+                const table = document.querySelector("table");
+                const headers = [...table.querySelectorAll("thead th")].map(th => th.innerText);
+                const phoneColumnIndex = headers.findIndex(header => header.toLowerCase() === "phone");
+                
+                // Get the headers
+                const headerRow = headers.join(",");
+                
+                // Process the data rows
+                const dataRows = [...table.querySelectorAll("tbody tr")].map(row => {
+                    return [...row.querySelectorAll("td")].map((cell, index) => {
+                        // If this is the phone column, format it properly
+                        if (index === phoneColumnIndex) {
+                            // Format phone as text by adding ="", which Excel recognizes as text format
+                            return `="${cell.innerText}"`;
+                        }
+                        return cell.innerText;
+                    }).join(",");
+                });
+                
+                // Combine headers and data
+                const csvContent = [headerRow, ...dataRows].join("\n");
+                
+                const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.setAttribute("download", "user_data.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+        });
+    </script>
+</body>
+
+</html>
