@@ -1,4 +1,4 @@
-:root {
+  :root {
     --sidebar-bg: linear-gradient(#1e1e2f, #232347);
     --sidebar-color: #ffffff;
     --sidebar-hover: #2e2e49;
@@ -22,7 +22,7 @@
     overflow: hidden;
   }
 
-  /* Sidebar Styles */
+  /* Sidebar Fade-in for Seamless Transition */
   nav {
     background: var(--sidebar-bg);
     width: 250px;
@@ -30,6 +30,12 @@
     flex-direction: column;
     align-items: flex-start;
     padding: 20px 0;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  nav.visible {
+    opacity: 1;
   }
 
   nav .logo {
@@ -54,6 +60,7 @@
 
   nav ul li {
     width: 100%;
+    position: relative;
   }
 
   nav ul li a {
@@ -71,18 +78,25 @@
     cursor: pointer;
   }
 
+  /* Active Submenu Item Styling */
+  nav ul li.category .submenu li a.active {
+    background: var(--sidebar-hover);
+  }
+
   /* Main Content Area */
   main {
     flex: 1;
     background: white;
-    background-image: url(https://images.takeshape.io/5da2b4d5-59f6-412a-82c3-f6a272b532be/dev/b617b697-504d-47f5-9141-1e3cc1d9e279/157834-abstract-white-background-design.jpg);
+    background-image: url(/assets/bg.svg);
+    background-size: cover;
+    background-position: center;
     position: relative;
     display: flex;
     flex-direction: column;
+  }
 
-    iframe {
-      mix-blend-mode: multiply;
-    }
+  main iframe {
+    mix-blend-mode: multiply;
   }
 
   .content-iframe {
@@ -93,8 +107,10 @@
     height: 100%;
     overflow: auto;
     transition: all ease-in-out 200ms;
+  }
 
-    @media (max-width: 600px) {
+  @media (max-width: 600px) {
+    .content-iframe {
       width: 90%;
       margin-left: 10%;
     }
@@ -110,7 +126,6 @@
     .menu-toggle {
       display: block;
     }
-
     .menu-toggle {
       position: absolute;
       top: 20px;
@@ -123,7 +138,6 @@
       z-index: 110;
       font-size: 18px;
     }
-
     nav {
       position: fixed;
       top: 0;
@@ -132,11 +146,9 @@
       transform: translateX(-200px);
       transition: transform var(--transition-speed);
     }
-
     nav.open {
       transform: translateX(0);
     }
-
     .open-sidebar .content-iframe {
       width: auto;
       margin-left: 250px;
@@ -154,19 +166,15 @@
       transform: translateX(-200px);
       transition: transform var(--transition-speed);
     }
-
     nav.open {
       transform: translateX(0);
     }
-
     ul {
       opacity: 0;
     }
-
     nav.open ul {
       opacity: 1;
     }
-
     .menu-toggle {
       position: absolute;
       top: 20px;
@@ -190,52 +198,79 @@
     margin-top: auto;
     color: rgba(255, 255, 255, 0.4);
     font-size: 10px;
+  }
 
-    &:hover {
-      color: rgba(255, 255, 255, 0.7);
-    }
+  button:hover {
+    color: rgba(255, 255, 255, 0.7);
   }
 
   #legacy li a {
     font-size: 12px;
     color: #cacaca;
   }
-  .beta {
 
-    &::after {
-      content: 'BETA';
-      background-color: rgba(255, 0, 0, 0.685);
-      border-radius: 5px;
-      width: fit-content;
-      font-size: 11px;
-      padding: 4px;
-      margin-left: 7px;
-    }
-    
+  .beta::after {
+    content: 'BETA';
+    background-color: rgba(255, 0, 0, 0.685);
+    border-radius: 5px;
+    width: fit-content;
+    font-size: 11px;
+    padding: 4px;
+    margin-left: 7px;
   }
-  .new {
 
-    &::after {
-      content: 'NEW';
-      background-color: rgba(255, 0, 0, 0.685);
-      border-radius: 5px;
-      width: fit-content;
-      font-size: 11px;
-      padding: 4px;
-      margin-left: 7px;
-    }
-    
+  .new::after {
+    content: 'NEW';
+    background-color: rgba(255, 0, 0, 0.685);
+    border-radius: 5px;
+    width: fit-content;
+    font-size: 11px;
+    padding: 4px;
+    margin-left: 7px;
   }
 
   .deprecated {
     display: flex;
     flex-direction: column-reverse;
-    &::after {
-      content: 'deprecated';
-      border-radius: 5px;
-      width: fit-content;
-      font-size: 9px;
-      opacity: .8;
-    }
-    
   }
+
+  .deprecated::after {
+    content: 'deprecated';
+    border-radius: 5px;
+    width: fit-content;
+    font-size: 9px;
+    opacity: 0.8;
+  }
+
+  /* Additional CSS for Click-to-Open Submenu Items */
+  nav ul li.category > a {
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  /* Initially collapse submenus using max-height */
+  nav ul li.category .submenu {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+  }
+
+  /* When a category is active, expand the submenu */
+  nav ul li.category.active .submenu {
+    max-height: 500px; /* Adjust if you have more items */
+    transition: max-height 0.3s ease-in;
+  }
+
+  /* Disable transition if the category has no-transition class */
+  nav ul li.category.no-transition .submenu {
+    transition: none !important;
+  }
+
+  /* Indent submenu links */
+  nav ul li.category .submenu li a {
+    padding-left: 40px;
+  }
+

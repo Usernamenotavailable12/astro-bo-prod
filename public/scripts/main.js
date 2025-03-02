@@ -52,3 +52,47 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+document.addEventListener('DOMContentLoaded', function() {
+  const nav = document.querySelector('nav');
+  // Fade in the sidebar on page load for a seamless feel.
+  nav.classList.add('visible');
+
+  const categoryLinks = document.querySelectorAll('nav ul li.category > a');
+  
+  // Toggle active category on click (accordion behavior)
+  categoryLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const parentCategory = this.parentElement;
+      
+      // Close any other open category
+      document.querySelectorAll('nav ul li.category.active').forEach(activeItem => {
+        if (activeItem !== parentCategory) {
+          activeItem.classList.remove('active');
+        }
+      });
+      
+      // Toggle the clicked category
+      parentCategory.classList.toggle('active');
+    });
+  });
+  
+  // On page load, check if a submenu link matches the current URL
+  // and open its parent category (without animating) and mark it as active.
+  const currentPath = window.location.pathname;
+  const submenuLinks = document.querySelectorAll('nav ul li.category .submenu li a');
+  
+  submenuLinks.forEach(link => {
+    if(link.getAttribute('href') === currentPath) {
+      // Mark this submenu link as active.
+      link.classList.add('active');
+      // Open its parent category without animation.
+      const category = link.closest('li.category');
+      category.classList.add('active', 'no-transition');
+      // Remove the temporary no-transition class shortly after load.
+      setTimeout(() => {
+        category.classList.remove('no-transition');
+      }, 10);
+    }
+  });
+});

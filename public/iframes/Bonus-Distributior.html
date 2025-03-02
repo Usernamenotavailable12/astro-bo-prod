@@ -1,0 +1,181 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonus Distribution</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .form-group input {
+      width: 95%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+
+    .progress {
+      margin-top: 10px;
+      font-size: 14px;
+      color: green;
+    }
+
+    .error-list {
+      margin-top: 10px;
+      font-size: 12px;
+      text-align: left;
+      line-height: 2em;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <form id="login-form">
+      <div class="form-group">
+        <label for="username">Email</label>
+        <input type="email" id="username" placeholder="Enter your email" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" required />
+      </div>
+      <button type="submit" class="btn">Login</button>
+    </form>
+
+    <div id="bonus-section" style="display: none">
+      <div class="form-group">
+        <label for="excel-file">Upload Excel File</label>
+        <input type="file" id="excel-file" accept=".xlsx" />
+      </div>
+      <button id="upload-btn" class="btn">Upload & Process</button>
+      <div class="progress" id="progress"></div>
+      <div class="error-list" id="error-list"></div>
+    </div>
+  </div>
+
+  <script>
+    let authToken = null;
+
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      const response = await fetch("https://www.ambassadoribet.com/_internal/gql", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: "mutation Login($input: LoginInput!) { login(input: $input) { refreshToken } }",
+          variables: { input: { brandId: "ab", username: email, password: password } },
+        }),
+      });
+      const data = await response.json();
+
+      if (data?.data?.login?.refreshToken) {
+        authToken = data.data.login.refreshToken;
+        document.getElementById("login-form").style.display = "none";
+        document.getElementById("bonus-section").style.display = "block";
+      } else {
+        alert("Login failed. Please check your credentials.");
+      }
+    });
+
+    document.getElementById("upload-btn").addEventListener("click", async () => {
+      const fileInput = document.getElementById("excel-file");
+      if (!fileInput.files.length) {
+        alert("Please upload an Excel file.");
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.readAsArrayBuffer(file);
+      reader.onload = async (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        const maxBonuses = 50;
+        const limitedRows = rows.slice(1, Math.min(rows.length, maxBonuses + 1));
+        let errors = [];
+
+        for (let i = 0; i < limitedRows.length; i++) {
+          const [userId, bonusId] = limitedRows[i];
+          if (!userId || !bonusId) continue;
+
+          const response = await fetch("https://www.ambassadoribet.com/_internal/gql", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
+            body: JSON.stringify({
+              query: "mutation GiveUserBonus($input: GiveUserBonusInput!) { giveUserBonus(input: $input) { userBonus { status } } }",
+              variables: { input: { bonusId, userId, reason: "COMPENSATION" } },
+            }),
+          });
+          const result = await response.json();
+
+          if (result.errors) {
+            errors.push(`<span style="color:red">User:</span> ${userId} <span style="color:blue">Bonus:</span> ${bonusId}`);
+          }
+          document.getElementById("progress").textContent = `Processing: ${i + 1}/${limitedRows.length}`;
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // 1-second delay
+        }
+
+        document.getElementById("progress").textContent = limitedRows.length === maxBonuses ? "Limit reached (50 bonuses)." : "Done!";
+        if (errors.length) {
+          document.getElementById("error-list").innerHTML = `<strong style="color: red">Failed Bonuses:</strong><br>` + errors.join("<br>");
+        }
+      };
+    });
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</body>
+
+</html>

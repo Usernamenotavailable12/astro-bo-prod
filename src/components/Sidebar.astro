@@ -1,73 +1,68 @@
 ---
 import Dock from "../components/Dock.astro";
 ---
-  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-  <nav id="sidebar" class="open">
-    <div class="logo">
-      <button style="all: unset; cursor: pointer" onclick="window.location.href = '/'">
-        <img
-          src="https://images.takeshape.io/ab111b19-bba2-4cbc-88b1-02bc9b72a93a/dev/0f64b6fb-3f28-4beb-82cd-e6a71fccdf5d/32x32%20(2).svg"
-          alt="Logo" width="44" height="44" />
-      </button>
-    </div>
-    <ul>
-   
-      <li>
-        <a class="deprecated" href="/loot-boxes" >User's Loot
-          Boxes</a>
-      </li> 
-      <li>
-        <a class="new" href="/tournamentdata">Tournament Data</a>
-      </li>
-      <li>
-        <a class="new" href="/usersdata">Users Info</a>
-      </li>
-      <li>
-        <a  href="/cashbackbonusdistributor">Cashback Dist.</a>
-      </li>
-      <li>
-        <a href="/syndicate-sessions">Betpool
-          Session Stats</a>
-      </li>
-      <li>
-        <a href="/syndicat-session-update">Betpool
-          Validity Update</a>
-      </li>
-      <li>
-        <a href="/bonus-distributor">Bonus Dist.</a>
-      </li>
-      <li>
-        <a href="/pending-withdrawal" >Pending WD Stats</a>
-      </li>
-      <li>
-        <a href="/dublicate-checker">Dublicate Checker</a>
-      </li>
-      <li>
-        <a href="/recent-win">User's Latest Wins</a>
-      </li>
-      <li>
-        <a href="/amusnet-jackpot">Amusnet
-          Jackpots</a>
-      </li>
-      <li>
-        <a href="/egt-jackpot">EGT Digital
-          Jackpots</a>
-      </li>
-      <li>
-        <a style="color: rgb(183, 157, 255);" href="/cms">CMS</a>
-      </li>
-      <li>
-        <a style="color: rgb(122, 202, 122);" href="/amb-api-doc">API</a>
-      </li>
-    </ul>
-    <ul style="display: none" id="legacy">
-      <li>
-        <a href="/balance-adjust">Balance Adjust</a>
-      </li>
-      <li>
-        <a href="/wg-calculator">WG Calculator</a>
-      </li>
-    </ul>
-    <button onclick="toggleDisplay()">Legacy Apps</button>
-  </nav>
-  <Dock/>
+
+<button class="menu-toggle" onclick="toggleMenu()">☰</button>
+<nav id="sidebar" class="open">
+  <div class="logo">
+    <button style="all: unset; cursor: pointer" onclick="window.location.href = '/'">
+      <img
+        src="https://images.takeshape.io/ab111b19-bba2-4cbc-88b1-02bc9b72a93a/dev/0f64b6fb-3f28-4beb-82cd-e6a71fccdf5d/32x32%20(2).svg"
+        alt="Logo" width="44" height="44" />
+    </button>
+  </div>
+  <ul>
+    <!-- Users Category -->
+    <li class="category">
+      <a href="#">Users</a>
+      <ul class="submenu">
+        <li><a class="deprecated" href="/loot-boxes">User's Loot Boxes</a></li>
+        <li><a class="new" href="/usersdata">Contact Info</a></li>
+        <li><a href="/dublicate-checker">Dublicate Checker</a></li>
+        <li><a href="/recent-win">Latest Wins</a></li>
+      </ul>
+    </li>
+
+    <!-- Jackpots Category -->
+    <li class="category">
+      <a href="#">Jackpots</a>
+      <ul class="submenu">
+        <li><a href="/egt-jackpot">EGT Digital</a></li>
+        <li><a href="/amusnet-jackpot">Amusnet</a></li>
+      </ul>
+    </li>
+
+    <!-- Betpool Category -->
+    <li class="category">
+      <a href="#">Betpool</a>
+      <ul class="submenu">
+        <li><a href="/syndicate-sessions">Session Stats</a></li>
+        <li><a href="/syndicat-session-update">Validity Update</a></li>
+      </ul>
+    </li>
+
+    <!-- Distributors Category -->
+    <li class="category">
+      <a href="#">Distributors</a>
+      <ul class="submenu">
+        <li><a href="/bonus-distributor">Bonuses</a></li>
+        <li><a href="/cashbackbonusdistributor">Cashback</a></li>
+      </ul>
+    </li>
+
+    <!-- Stats Category -->
+    <li class="category">
+      <a href="#">Stats</a>
+      <ul class="submenu">
+        <li><a class="new" href="/tournamentdata">Tournament</a></li>
+        <li><a href="/pending-withdrawal">Pending WD</a></li>
+      </ul>
+    </li>
+
+    <!-- API stays separate -->
+    <li>
+      <a style="color: rgb(122, 202, 122);" href="/amb-api-doc">API</a>
+    </li>
+  </ul>
+</nav>
+<Dock/>

@@ -1,0 +1,215 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jackpot Winners Display (New Structure)</title>
+    <style>
+        @font-face {
+            font-family: 'Noto Sans ambassadori';
+            src: url('https://usernamenotavailable12.github.io/Font-Repository/NotoSansAmbassadori-Bold.ttf');
+        }
+
+        body {
+            font-family: 'Noto Sans ambassadori';
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .jackpot-section {
+            margin-bottom: 40px;
+        }
+
+        .jackpot-section h1 {
+            font-size: 22px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .container h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .winner-info {
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .highlight {
+            background-color: #ffcccc; /* Highlight color when recent win */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="jackpot-section" id="cloverChanceSection">
+        <h1>Clover Chance</h1>
+        <div class="container" id="cloverChanceLevel1">
+            <h2>Grand</h2>
+            <div class="winner-info" id="cloverChanceL1Info">Loading...</div>
+        </div>
+        <div class="container" id="cloverChanceLevel2">
+            <h2>Major</h2>
+            <div class="winner-info" id="cloverChanceL2Info">Loading...</div>
+        </div>
+        <div class="container" id="cloverChanceLevel3">
+            <h2>Minor</h2>
+            <div class="winner-info" id="cloverChanceL3Info">Loading...</div>
+        </div>
+        <div class="container" id="cloverChanceLevel4">
+            <h2>Mini</h2>
+            <div class="winner-info" id="cloverChanceL4Info">Loading...</div>
+        </div>
+    </div>
+
+    <div style="display: none;"  class="jackpot-section" id="highCashSection">
+        <h1>High Cash</h1>
+        <div class="container" id="highCashLevel1">
+            <h2>Grand</h2>
+            <div class="winner-info" id="highCashL1Info">Loading...</div>
+        </div>
+        <div class="container" id="highCashLevel2">
+            <h2>Major</h2>
+            <div class="winner-info" id="highCashL2Info">Loading...</div>
+        </div>
+        <div class="container" id="highCashLevel3">
+            <h2>Minor</h2>
+            <div class="winner-info" id="highCashL3Info">Loading...</div>
+        </div>
+        <div class="container" id="highCashLevel4">
+            <h2>Mini</h2>
+            <div class="winner-info" id="highCashL4Info">Loading...</div>
+        </div>
+    </div>
+
+    <div class="jackpot-section" id="bellLinkSection">
+        <h1>Bell Link</h1>
+        <div class="container" id="bellLinkLevel1">
+            <h2>Grand</h2>
+            <div class="winner-info" id="bellLinkL1Info">Loading...</div>
+        </div>
+        <div class="container" id="bellLinkLevel2">
+            <h2>Major</h2>
+            <div class="winner-info" id="bellLinkL2Info">Loading...</div>
+        </div>
+        <div style="display: none;" class="container" id="bellLinkLevel3">
+            <h2>Minor</h2>
+            <div class="winner-info" id="bellLinkL3Info">Loading...</div>
+        </div>
+        <div style="display: none;"  class="container" id="bellLinkLevel4">
+            <h2>Mini</h2>
+            <div class="winner-info" id="bellLinkL4Info">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        // Helper function to check if a win occurred within the last 24 hours
+        function isRecentWin(lastWinDateStr) {
+            if (!lastWinDateStr) return false;
+            const lastWinDate = new Date(lastWinDateStr);
+            const currentTime = new Date();
+            const timeDifference = currentTime - lastWinDate; // Difference in milliseconds
+            return timeDifference <= 8.64e+7; // 1 day in milliseconds
+        }
+
+        // Formats the win amount, dividing by 100 to place decimal correctly (if needed)
+        function formatWinAmount(value) {
+            const adjustedValue = value / 100; 
+            return adjustedValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        async function fetchJackpotData() {
+            try {
+                const response = await fetch('https://ambassadoribetge-api-prod-bgsp.egt-ong.com/api/jackpot/stats');
+                if (!response.ok) {
+                    console.error('Failed to fetch data:', response.statusText);
+                    document.querySelectorAll('.winner-info').forEach(el => el.textContent = 'Failed to fetch data.');
+                    return;
+                }
+
+                const data = await response.json();
+                const instances = data?.jackpotInstancesStats?.instanceStats || [];
+
+                // Extract the three jackpots we need
+                const cloverChance = instances.find(i => i.instanceName === "Clover Chance");
+                const highCash = instances.find(i => i.instanceName === "High Cash");
+                const bellLink = instances.find(i => i.instanceName === "Bell Link");
+
+                // Update each jackpot's levels
+                updateJackpotLevels(cloverChance, "cloverChance");
+                updateJackpotLevels(highCash, "highCash");
+                updateJackpotLevels(bellLink, "bellLink");
+
+            } catch (error) {
+                console.error('Error fetching or processing data:', error);
+                document.querySelectorAll('.winner-info').forEach(el => el.textContent = 'მონაცემები ვერ ჩაიტვირთა.');
+            }
+        }
+
+        function updateJackpotLevels(instanceData, prefix) {
+            for (let lvl = 1; lvl <= 4; lvl++) {
+                const infoElem = document.getElementById(`${prefix}L${lvl}Info`);
+                const containerElem = document.getElementById(`${prefix}Level${lvl}`);
+
+                if (!instanceData || !instanceData.levelStats) {
+                    infoElem.textContent = "No data available.";
+                    containerElem.classList.remove('highlight');
+                    continue;
+                }
+
+                const levelData = instanceData.levelStats.find(l => l.levelId === lvl);
+
+                if (!levelData) {
+                    infoElem.textContent = "No data for this level.";
+                    containerElem.classList.remove('highlight');
+                    continue;
+                }
+
+                const lastWinPlayerName = levelData.lastWinPlayerName || "Not available";
+                const lastWinDate = levelData.lastWinDate;
+                let lastWinValue = 0;
+                if (levelData.lastWinValue && levelData.lastWinValue.length > 0) {
+                    lastWinValue = levelData.lastWinValue[0].value;
+                }
+
+                let displayInfo = `ბოლო გამარჯვებულმა: <strong>${lastWinPlayerName}</strong> `;
+
+                if (lastWinValue > 0 && lastWinDate) {
+                    const formattedValue = formatWinAmount(lastWinValue) + '₾';
+                    displayInfo += `მოიგო <strong>${formattedValue}</strong><br>მოგების დრო: ${new Date(lastWinDate).toLocaleString()}`;
+                } else {
+                    displayInfo += `ჯერ არ არის მოგება ამ დონეზე.`;
+                }
+
+                infoElem.innerHTML = displayInfo;
+
+                if (isRecentWin(lastWinDate)) {
+                    containerElem.classList.add('highlight');
+                } else {
+                    containerElem.classList.remove('highlight');
+                }
+            }
+        }
+
+        // Initial fetch
+        fetchJackpotData();
+        // Check for updates every 3 seconds
+        setInterval(fetchJackpotData, 3000);
+    </script>
+</body>
+</html>

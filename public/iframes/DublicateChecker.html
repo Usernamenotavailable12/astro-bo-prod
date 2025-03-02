@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duplicate Checker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+            width: 250px;
+        }
+        button {
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .green {
+            color: green;
+        }
+        .red {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h2>Duplicate Checker</h2>
+    <input type="text" id="userId" placeholder="მიუთითეთ მომხმარებლის პირადი ნომერი" />
+    <button onclick="fetchData()">Check</button>
+    <div id="output" class="result"></div>
+
+    <script>
+        async function fetchData() {
+            const userId = document.getElementById("userId").value.trim();
+            if (!userId) {
+                alert("Please enter an ID number.");
+                return;
+            }
+
+            const url = `https://muddy-meadow-c687.gdzneladze.workers.dev?q=${userId}`;
+            
+            try {
+                const response = await fetch(url, { method: "GET" });
+                if (!response.ok) {
+                    throw new Error("Request failed");
+                }
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                document.getElementById("output").innerHTML = `<span class='red'>Error: ${error.message}</span>`;
+            }
+        }
+
+        function displayResults(data) {
+            const output = document.getElementById("output");
+            const items = data.list?.items || [];
+            
+            if (items.length === 0) {
+                output.innerHTML = "No results found.";
+                return;
+            }
+            
+            let resultHtml = "";
+            const results = items.map(item => {
+                const review = item.applicant.review?.reviewResult || {};
+                const reviewAnswer = review.reviewAnswer || "UNKNOWN";
+                const rejectLabels = review.rejectLabels || [];
+                const colorClass = reviewAnswer === "GREEN" ? "green" : reviewAnswer === "RED" ? "red" : "";
+                const deleted = item.applicant.deleted ?? false;
+                
+                return {
+                    userId: item.applicant.externalUserId,
+                    reviewResult: reviewAnswer,
+                    rejectReason: rejectLabels.length ? rejectLabels.join(", ") : "",
+                    colorClass,
+                    deleted
+                };
+            });
+            
+            results.forEach(({ userId, colorClass, reviewResult, rejectReason, deleted }) => {
+                resultHtml += `<p>UserID: <span class="${colorClass}">${userId}</span></p>`;
+                if (reviewResult === "RED" && rejectReason) {
+                    resultHtml += `<p>Rejection Reason: <span class='red'>${rejectReason}</span></p>`;
+                }
+                if (deleted) {
+                    resultHtml += `<p><span style="color: yellow; background-color: black; padding: 4px; border-radius: 7px;" >Dublicate account is already deleted</span></p>`;
+                }
+            });
+            
+            const status = results.length > 1 ? "<span class='red'>Duplicate</span>" : "<span class='green'>Not Duplicate</span>";
+            output.innerHTML = resultHtml + `<p>Status: ${status}</p>`;
+        }
+    </script>
+</body>
+</html>

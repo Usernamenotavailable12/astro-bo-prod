@@ -1,0 +1,497 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amlib Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+
+        header {
+            background: #004085;
+            color: #fff;
+            padding: 1rem 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        h2 {
+            border-bottom: 2px solid #004085;
+            padding-bottom: 0.5rem;
+            color: #004085;
+        }
+
+        code {
+            background: #eaeaea;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-size: 90%;
+            color: #d63384;
+            font-weight: bold;
+        }
+
+        pre {
+            background: #14004d;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+
+            code {
+                background: #14004d;
+                color: #10dbff;
+
+                &.global-variables {
+                    color: #ff10a3;
+                }
+            }
+        }
+
+        .changelog ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .changelog ul li {
+            background: #eaeaea;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border-left: 2px solid rgba(0, 64, 133, 0.4);
+
+            &:has(.version-label) {
+                border-left: 4px solid #004085;
+            }
+        }
+
+
+        footer {
+            text-align: center;
+            margin: 2rem 0;
+            color: #777;
+        }
+
+        .gql-playground {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f1f1f1;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .gql-playground textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 1rem;
+            font-family: monospace;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            color: #004085;
+        }
+
+        .gql-playground button {
+            background: #004085;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .gql-playground button:hover {
+            background: #003366;
+        }
+
+        .gql-response {
+            margin-top: 1rem;
+            background: #2d2d2d;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+
+        #variables {
+            .global-variables {
+                display: flex;
+                max-height: 200px;
+                overflow: hidden;
+            }
+
+            &.expanded {
+                .global-variables {
+                    display: flex;
+                    max-height: 100%;
+                    overflow: hidden;
+                }
+            }
+
+            .button-holder {
+                display: flex;
+                width: 100%;
+                justify-content: center;
+                align-items: center;
+
+                #expandButton {
+                    text-transform: capitalize;
+                    background-color: #14004d;
+                    color: white;
+                    padding: .4rem .6rem;
+                    border: none;
+                    border-radius: 3px;
+                    cursor: pointer;
+                    transition: all ease-in-out 150ms;
+
+                    &:hover {
+                        opacity: .75;
+                    }
+
+                    &.remove {
+                        display: none;
+                    }
+                }
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Amlib Documentation</h1>
+    </header>
+
+    <div class="container">
+        <section>
+            <h2>Overview</h2>
+            <span></span>
+            <p><a style="text-decoration: none;" target="_blank"
+                    href="https://usernamenotavailable12.github.io/amb/dist/main.min.js"><code>main.min.js</code> </a>
+                <span style="color: rgb(0, 0, 63);">(contains <a style="text-decoration: none;" target="_blank"
+                        href="https://usernamenotavailable12.github.io/src-js/dist/Amlib.min.js"><code>Amlib.js</code>
+                    </a>)</span>
+                is a
+                utility library that provides shared functions and constants for interacting with the Ambassadoribet
+                API. It
+                simplifies common tasks like making GraphQL requests, extracting authentication data, retrieving
+                cookies, and
+                formatting dates.
+            </p>
+
+
+        </section>
+
+        <section>
+            <h2>Constants</h2>
+            <h3><code>API_URL</code></h3>
+            <p><strong>Description:</strong> The base URL for GraphQL API requests.</p>
+            <p><strong>Type:</strong> <code>string</code></p>
+            <p><strong>Value:</strong> <code>https://www.ambassadoribet.com/_internal/gql</code></p>
+
+            <h3><code>BRAND_ID</code></h3>
+            <p><strong>Description:</strong> The brand identifier used in GraphQL queries.</p>
+            <p><strong>Type:</strong> <code>string</code></p>
+            <p><strong>Value:</strong> <code>ab</code></p>
+        </section>
+
+        <section class="gql-playground">
+            <h2>GraphQL Playground</h2>
+            <p>Use this playground to send GraphQL queries directly to the API endpoint.</p>
+            <textarea id="gql-query">query RecentWinConnection {
+  recentWinConnection(brandId: "ab", last: 1) {
+    edges {
+      node {
+        amount
+      }
+    }
+  }
+}</textarea>
+            <button id="send-query">Send Query</button>
+            <div id="gql-response" class="gql-response"></div>
+        </section>
+
+        <section>
+            <h2>Functions</h2>
+
+            <h3><code>fetchGraphQL(query, variables = {})</code></h3>
+            <p><strong>Description:</strong> Sends a GraphQL query to the Ambassadoribet API.</p>
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>query</code> (<code>string</code>): The GraphQL query string.</li>
+                <li><code>variables</code> (<code>object</code>): An optional object containing variables for the query.
+                </li>
+            </ul>
+            <p><strong>Returns:</strong> A <code>Promise</code> that resolves to the API response.</p>
+            <pre><code>const query = `query Example { exampleField }`;
+const variables = { key: "value" };
+const result = await fetchGraphQL(query, variables);
+console.log(result);</code></pre>
+
+            <h3><code>extractAuthDataFromCookie()</code></h3>
+            <p><strong>Description:</strong> Extracts authentication data from the <code>auth</code> cookie.</p>
+            <p><strong>Returns:</strong> An object containing <code>userId</code> and <code>accessToken</code>, or
+                <code>null</code> if the cookie is missing or invalid.
+            </p>
+            <pre><code>const authData = extractAuthDataFromCookie();
+if (authData) {
+  console.log(authData.userId);
+}</code></pre>
+
+            <h3><code>getCookie(name)</code></h3>
+            <p><strong>Description:</strong> Retrieves the value of a cookie by name.</p>
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>name</code> (<code>string</code>): The name of the cookie.</li>
+            </ul>
+            <p><strong>Returns:</strong> The cookie value as a string, or <code>null</code> if the cookie is not found.
+            </p>
+            <pre><code>const authCookie = getCookie("auth");
+console.log(authCookie);</code></pre>
+
+            <h3><code>formatDate(isoString)</code></h3>
+            <p><strong>Description:</strong> Converts an ISO date string to a localized string.</p>
+            <p><strong>Parameters:</strong></p>
+            <ul>
+                <li><code>isoString</code> (<code>string</code>): The ISO date string.</li>
+            </ul>
+            <p><strong>Returns:</strong> A formatted date string.</p>
+            <pre><code>const formattedDate = formatDate("2025-01-01T12:00:00Z");
+console.log(formattedDate); // e.g., "1/1/2025, 12:00:00 PM"</code></pre>
+        </section>
+
+        <section id="variables">
+            <h2>Global Variables</h2>
+            <pre><code class="global-variables">export type AchievementInterpolationKey = 'USER_VIP_LEVEL' | 'USER_VIP_STATUS' | 'USER_VIP_STATUS_ICON';
+
+export type CampaignBonusInterpolationKey =
+  | 'BONUS_ACTIVATION_DAYS'
+  | 'BONUS_BET_VALUE'
+  | 'BONUS_DEPOSIT'
+  | 'BONUS_GAME_FEATURES'
+  | 'BONUS_GAME_NAMES'
+  | 'BONUS_GAME_RELEASE_DATES'
+  | 'BONUS_GAME_RTPS'
+  | 'BONUS_GAME_STUDIOS'
+  | 'BONUS_MAX_DEPOSIT'
+  | 'BONUS_MAX_REWARD'
+  | 'BONUS_MIN_DEPOSIT'
+  | 'BONUS_NAME'
+  | 'BONUS_PERCENTAGE'
+  | 'BONUS_PLAY_WITH'
+  | 'BONUS_REWARD'
+  | 'BONUS_SPIN_COUNT'
+  | 'BONUS_SPIN_TYPE'
+  | 'BONUS_VALID_DAYS'
+  | 'BONUS_WAGER_REQUIREMENT'
+  | 'CAMPAIGN_ENDS_AT'
+  | 'CAMPAIGN_ENDS_IN_DAYS'
+  | 'CAMPAIGN_ENDS_IN'
+  | 'CAMPAIGN_STARTS_AT'
+  | 'CAMPAIGN_STARTS_IN_DAYS'
+  | 'CAMPAIGN_STARTS_IN';
+
+export type ComplianceInterpolationKey =
+  | 'ACCUMULATED_MONTHLY_WALLET_SUMMARY'
+  | 'ACCUMULATED_YEARLY_WIN_MESSAGE'
+  | 'BALANCE_LIMIT'
+  | 'DAILY_DEPOSIT_LIMIT_AVAILABLE'
+  | 'DAILY_DEPOSIT_LIMIT'
+  | 'LICENCE_HOLDER'
+  | 'LICENCE_NUMBER'
+  | 'MONTHLY_DEPOSIT_LIMIT_AVAILABLE'
+  | 'MONTHLY_DEPOSIT_LIMIT'
+  | 'USER_TOTAL_BET'
+  | 'USER_TOTAL_BONUS_BET'
+  | 'USER_TOTAL_REAL_BET'
+  | 'WEEKLY_DEPOSIT_LIMIT_AVAILABLE'
+  | 'WEEKLY_DEPOSIT_LIMIT';
+
+export type GameInterpolationKey =
+  | 'GAME_DESCRIPTION'
+  | 'GAME_FEATURES'
+  | 'GAME_MAX_LINES'
+  | 'GAME_MAX_PAYOUT'
+  | 'GAME_NAME'
+  | 'GAME_REELS_ROWS'
+  | 'GAME_RTP'
+  | 'GAME_SLUG'
+  | 'GAME_STUDIO'
+  | 'GAME_THUMB';
+
+export type GlobalInterpolationKey =
+  | 'ACTIVE_TAB_HEADER'
+  | 'AVAILABLE_BONUS_COUNT'
+  | 'CURRENT_TIME'
+  | 'CURRENT_URL'
+  | 'TEMPLATE_COUNT';
+
+export type SyndicateInterpolationKey =
+  | 'SYNDICATE_ID'
+  | 'SYNDICATE_SESSION_BALANCE'
+  | 'SYNDICATE_SESSION_CREATED_AT'
+  | 'SYNDICATE_SESSION_FINISHED_AT'
+  | 'SYNDICATE_SESSION_ID'
+  | 'SYNDICATE_SESSION_IMAGE'
+  | 'SYNDICATE_SESSION_MAX_PARTICIPANTS'
+  | 'SYNDICATE_SESSION_MIN_JOIN_AMOUNT'
+  | 'SYNDICATE_SESSION_MIN_PARTICIPANTS'
+  | 'SYNDICATE_SESSION_NAME'
+  | 'SYNDICATE_SESSION_NUMBER_OF_PARTICIPANTS'
+  | 'SYNDICATE_SESSION_OUTCOME_AMOUNT'
+  | 'SYNDICATE_SESSION_POOL_AMOUNT'
+  | 'SYNDICATE_SESSION_STARTS_AT'
+  | 'SYNDICATE_SESSION_VALIDITY';
+
+export type TournamentInterpolationKey =
+  | 'TOURNAMENT_BONUS_SPIN_COUNT'
+  | 'TOURNAMENT_ENDS_AT'
+  | 'TOURNAMENT_ENDS_IN'
+  | 'TOURNAMENT_MIN_BET'
+  | 'TOURNAMENT_NAME'
+  | 'TOURNAMENT_PRIZE_COUNT'
+  | 'TOURNAMENT_PRIZE_VALUE'
+  | 'TOURNAMENT_STARTS_AT'
+  | 'TOURNAMENT_STARTS_IN'
+  | 'TOURNAMENT_TYPE';
+
+export type UserInterpolationKey =
+  | 'SESSION_TIME'
+  | 'USER_AVATAR'
+  | 'USER_BALANCE'
+  | 'USER_BONUS_BALANCE'
+  | 'USER_COUNTRY'
+  | 'USER_FIRST_NAME'
+  | 'USER_INITIAL_BALANCE'
+  | 'USER_INITIAL_BONUS_BALANCE'
+  | 'USER_INITIAL_REAL_BALANCE'
+  | 'USER_INITIAL_VIRTUAL_BALANCE'
+  | 'USER_INTIALS'
+  | 'USER_LAST_LOGIN'
+  | 'USER_LAST_NAME'
+  | 'USER_NICKNAME'
+  | 'USER_PHONE_COUNTRY_PREFIX'
+  | 'USER_PHONE_NUMBER'
+  | 'USER_REAL_BALANCE'
+  | 'USER_SELECTED_BALANCE'
+  | 'USER_SELECTED_REAL_BALANCE'
+  | 'USER_SELECTED_BONUS_BALANCE'
+  | 'USER_SESSION_TOTAL_BET'
+  | 'USER_SESSION_TOTAL_LOSS'
+  | 'USER_SESSION_TOTAL_WIN'
+  | 'USER_SHARED_BALANCE'
+  | 'USER_UNREAD_NOTIFICATION_COUNT'
+  | 'USER_VIRTUAL_BALANCE';
+</code></pre>
+            <div class="button-holder"><button id="expandButton" onclick="expand()">expand</button></div>
+        </section>
+
+        <section class="changelog">
+            <h2>Changelog</h2>
+
+            <ul>
+                <li><strong class="version-label">v1.2:</strong>
+                    <ul>
+                        <li><strong>Minified & Combined JS:</strong> Integrated multiple scripts into
+                            <code>main.min.js</code> for
+                            improved performance. The following scripts are now part of <code>main.min.js</code>:
+                            <ul>
+                                <li><code>Amlib.js</code></li>
+                                <li><code>SessionPolling-app.js</code></li>
+                                <li><code>cookie-app.js</code></li>
+                                <li><code>jackpot-button-app.js</code></li>
+                                <li><code>shop-app.js</code></li>
+                                <li><code>sportSearch-app.js</code></li>
+                                <li><code>userBoxConnection-app.js</code></li>
+                                <li><code>walletUserStats-app.js</code></li>
+                            </ul>
+                        </li>
+                        <li><strong>Separated Scripts:</strong>
+                            <ul>
+                                <li><code>SyndicatePolling-app.js</code> remains a separate script since it is
+                                    dynamically added when
+                                    the user navigates to the Syndicate page.</li>
+                                <li><strong>New Script:</strong> <code>newGamesBadge.js</code> was introduced. This
+                                    script automatically
+                                    adds a "NEW" badge to newly released games using data from
+                                    <code>"operationName=LobbyGames"</code>.
+                                    Unlike other scripts, it uses an <strong>HTTP GET request</strong> instead of a
+                                    GraphQL query.
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li><strong class="version-label">v1.1:</strong> Added a new "Global Variables" section with detailed
+                    interpolation keys.</li>
+                <li><strong class="version-label">v1.0:</strong> Initial release with the following features:
+                    <ul>
+                        <li><code>fetchGraphQL</code></li>
+                        <li><code>extractAuthDataFromCookie</code></li>
+                        <li><code>getCookie</code></li>
+                        <li><code>formatDate</code></li>
+                        <li>Constants: <code>API_URL</code>, <code>BRAND_ID</code></li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+    </div>
+
+
+    <footer>
+        <p>&copy; 2025 Amlib.js Documentation. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.getElementById('send-query').addEventListener('click', async () => {
+            const query = document.getElementById('gql-query').value;
+            const responseContainer = document.getElementById('gql-response');
+
+            try {
+                const response = await fetch('https://www.ambassadoribet.com/_internal/gql', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query }),
+                });
+
+                const data = await response.json();
+                responseContainer.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseContainer.textContent = `Error: ${error.message}`;
+            }
+        });
+
+        function expand() {
+            const elem = document.getElementById("variables");
+            elem.classList.add("expanded");
+            const elemBtn = document.getElementById("expandButton");
+            elemBtn.classList.add("remove");
+        }
+    </script>
+
+</body>
+
+</html>

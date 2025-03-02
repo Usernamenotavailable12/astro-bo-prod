@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Syndicate Session Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    .form-container {
+      width: 100%;
+      max-width: 600px;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-group input {
+      width: 94%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background-color: #0056b3;
+    }
+    .success-message, .error-message {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .success-message {
+      color: green;
+    }
+    .error-message {
+      color: red;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    table th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container" id="app">
+    <form id="login-form">
+      <div class="form-group">
+        <label for="username">Email</label>
+        <input type="email" id="username" placeholder="Enter your email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" required>
+      </div>
+      <button type="submit" class="btn">Login</button>
+    </form>
+
+    <form id="syndicate-query-form" style="display: none;">
+      <div class="form-group">
+        <label for="syndicateSessionId">Syndicate Session ID</label>
+        <input type="text" id="syndicateSessionId" placeholder="Enter Syndicate Session ID" required>
+      </div>
+      <button type="submit" class="btn">Fetch Data</button>
+    </form>
+
+    <div id="success-message" class="success-message"></div>
+    <div id="error-message" class="error-message"></div>
+    <div id="table-container"></div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const loginForm = document.getElementById("login-form");
+      const syndicateQueryForm = document.getElementById("syndicate-query-form");
+      const successMessage = document.getElementById("success-message");
+      const errorMessage = document.getElementById("error-message");
+      const tableContainer = document.getElementById("table-container");
+      let authToken = null;
+
+      loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        const loginPayload = {
+          query: `
+            mutation Login($input: LoginInput!) {
+              login(input: $input) {
+                refreshToken
+              }
+            }
+          `,
+          variables: {
+            input: {
+              brandId: "ab",
+              username: username,
+              password: password
+            }
+          }
+        };
+
+        try {
+          const response = await fetch("https://www.ambassadoribet.com/_internal/gql", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(loginPayload)
+          });
+
+          const data = await response.json();
+          if (data?.data?.login?.refreshToken) {
+            authToken = data.data.login.refreshToken;
+            loginForm.style.display = "none";
+            syndicateQueryForm.style.display = "block";
+            successMessage.textContent = "Login successful!";
+            errorMessage.textContent = "";
+          } else {
+            throw new Error("Invalid login credentials");
+          }
+        } catch (error) {
+          errorMessage.textContent = "Error during login: " + error.message;
+        }
+      });
+
+      syndicateQueryForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const syndicateSessionId = document.getElementById("syndicateSessionId").value;
+
+        const queryPayload = {
+          query: `
+            query SyndicateSession($syndicateSessionId: ID!) {
+              syndicateSession(syndicateSessionId: $syndicateSessionId) {
+                participants {
+                  userId
+                  user {
+                    nickname
+                    phone(format: SIGNIFICANT)
+                  }
+                  amount
+                  outcomeAmount
+                }
+              }
+            }
+          `,
+          variables: {
+            syndicateSessionId: syndicateSessionId
+          }
+        };
+
+        try {
+          const response = await fetch("https://www.ambassadoribet.com/_internal/gql", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`
+            },
+            body: JSON.stringify(queryPayload)
+          });
+
+          const data = await response.json();
+          if (data?.data?.syndicateSession?.participants) {
+            const participants = data.data.syndicateSession.participants;
+            renderTable(participants);
+            errorMessage.textContent = "";
+          } else {
+            throw new Error("No data found for the given Syndicate Session ID");
+          }
+        } catch (error) {
+          errorMessage.textContent = "Error fetching data: " + error.message;
+        }
+      });
+
+      function renderTable(participants) {
+        const tableHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>User ID</th>
+                <th>Nickname</th>
+                <th>Phone</th>
+                <th>Amount</th>
+                <th>Win/Loss</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${participants.map(p => `
+                <tr>
+                  <td>${p.userId}</td>
+                  <td>${p.user.nickname}</td>
+                  <td>${p.user.phone}</td>
+                  <td>${p.amount}</td>
+                  <td>${p.outcomeAmount - p.amount}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <button class="btn" onclick="downloadExcel()">Download Excel</button>
+        `;
+        tableContainer.innerHTML = tableHTML;
+      }
+
+      window.downloadExcel = function() {
+        const table = document.querySelector("table");
+        const rows = [...table.querySelectorAll("tr")].map(row =>
+          [...row.querySelectorAll("th, td")].map(cell => cell.innerText)
+        );
+
+        const csvContent = rows.map(e => e.join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", "syndicate_data.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+    });
+  </script>
+</body>
+</html>
