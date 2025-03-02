@@ -15,8 +15,15 @@ import Dock from "../components/Dock.astro";
     <!-- Users Category -->
     <li class="category" data-category="users">
       <a href="#">Users</a>
-      <ul class="submenu">
-        <li><a class="deprecated" href="/loot-boxes">User's Loot Boxes</a></li>
+      <ul class="submenu depricated_icon">
+        <div class="deprecated-wrapper">
+          <p class="deprecated-text">
+            deprecated - use 
+            <a class="deprecated-link" target="_blank" href="https://portal.themill.io/en/boxes/user">Boxes</a>
+            <img class="deprecated-img" src="/assets/depr.svg" alt="Deprecated Icon">
+          </p>
+        </div>
+        <li><a class="depricated_icon_check" style="white-space: pre-wrap;" href="/loot-boxes">Loot Boxes <div style="border-top: solid 1px #ffffff80; margin: 2px 0px; margin-right: 60px;"></div>Fortune Wheels</a></li>
         <li><a class="new" href="/usersdata">Contact Info</a></li>
         <li><a href="/dublicate-checker">Dublicate Checker</a></li>
         <li><a href="/recent-win">Latest Wins</a></li>
