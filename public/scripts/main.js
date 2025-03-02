@@ -53,46 +53,64 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-  const nav = document.querySelector('nav');
-  // Fade in the sidebar on page load for a seamless feel.
-  nav.classList.add('visible');
+  // Normalize a path by removing trailing slashes
+  function normalizePath(path) {
+    return path.replace(/\/$/, '');
+  }
 
+  const currentPath = normalizePath(window.location.pathname);
+
+  // Retrieve active category from localStorage
+  const savedActiveCategory = localStorage.getItem('activeCategory');
+  if (savedActiveCategory) {
+    const savedCategoryElem = document.querySelector(`nav ul li.category[data-category="${savedActiveCategory}"]`);
+    if (savedCategoryElem) {
+      savedCategoryElem.classList.add('active', 'no-transition');
+      setTimeout(() => savedCategoryElem.classList.remove('no-transition'), 10);
+    }
+  }
+
+  // Accordion behavior: toggle category on click and store the active one in localStorage
   const categoryLinks = document.querySelectorAll('nav ul li.category > a');
-  
-  // Toggle active category on click (accordion behavior)
   categoryLinks.forEach(link => {
     link.addEventListener('click', function(e) {
       e.preventDefault();
       const parentCategory = this.parentElement;
-      
+      const categoryName = parentCategory.getAttribute('data-category');
+
       // Close any other open category
       document.querySelectorAll('nav ul li.category.active').forEach(activeItem => {
         if (activeItem !== parentCategory) {
           activeItem.classList.remove('active');
         }
       });
-      
+
       // Toggle the clicked category
-      parentCategory.classList.toggle('active');
+      const isActive = parentCategory.classList.toggle('active');
+
+      // Save or remove from localStorage based on toggle state
+      if (isActive) {
+        localStorage.setItem('activeCategory', categoryName);
+      } else {
+        localStorage.removeItem('activeCategory');
+      }
     });
   });
-  
-  // On page load, check if a submenu link matches the current URL
-  // and open its parent category (without animating) and mark it as active.
-  const currentPath = window.location.pathname;
+
+  // Check submenu links and mark the matching one as active
   const submenuLinks = document.querySelectorAll('nav ul li.category .submenu li a');
-  
   submenuLinks.forEach(link => {
-    if(link.getAttribute('href') === currentPath) {
-      // Mark this submenu link as active.
+    if (normalizePath(link.getAttribute('href')) === currentPath) {
       link.classList.add('active');
-      // Open its parent category without animation.
+      // Open the parent category (if not already open)
       const category = link.closest('li.category');
       category.classList.add('active', 'no-transition');
-      // Remove the temporary no-transition class shortly after load.
-      setTimeout(() => {
-        category.classList.remove('no-transition');
-      }, 10);
+      localStorage.setItem('activeCategory', category.getAttribute('data-category'));
+      setTimeout(() => category.classList.remove('no-transition'), 10);
     }
   });
+
+  // Optional: Fade in the sidebar for a smoother feel on page load
+  const nav = document.querySelector('nav');
+  nav.classList.add('visible');
 });
