@@ -50,6 +50,7 @@ const WALLET_CONNECTION_QUERY = gql`
           user {
             nickname
             lastName
+            firstName
             userId
           }
         }
@@ -164,7 +165,8 @@ function Dashboard() {
           const node = response.data.walletConnection.edges[0].node;
           results.push({
             userId,
-            firstName: node.user.nickname,
+            firstName: node.user.firstName,
+            username: node.user.nickname,
             lastName: node.user.lastName,
             constUserId: node.user.userId,
             currentBalance: node.currentBalance,
@@ -212,12 +214,12 @@ function Dashboard() {
       </button>
       <section className="wallet-list-wrapper">
       <ul className="wallet-list-header">
-      <li><span className='userids'>UserIDs</span> <span className='nickname'>Username</span> <span className='amounts'>Amount</span></li>
+      <li><span className='userids'>UserID</span> <span className='nickname'>Name</span> <span className='amounts'>Amount</span></li>
       </ul>
       <ul className="wallet-list">
         {walletData.map((user, index) => (
           <li key={index}>
-            <span className='userids'>{user.constUserId}</span> <span className='nickname'>{user.firstName}</span> <span className='amounts'>{user.currentBalance}₾</span>
+            <span className='userids'>{user.constUserId}</span> <span className='nickname'>{user.firstName} {user.lastName}</span> <span className='amounts'>{user.currentBalance}₾</span>
           </li>
         ))}
       </ul>
