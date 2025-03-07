@@ -1,5 +1,6 @@
 ---
 import Dock from "../components/Dock.astro";
+import App from '../components/app.jsx';
 ---
 
 <button class="menu-toggle" onclick="toggleMenu()">☰</button>
@@ -73,3 +74,4 @@ import Dock from "../components/Dock.astro";
   </ul>
 </nav>
 <Dock/>
+<App client:load />

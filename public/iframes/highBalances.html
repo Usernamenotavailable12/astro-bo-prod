@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vanilla JS GraphQL Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    form { margin-bottom: 20px; }
+    label { display: block; margin: 10px 0 5px; }
+    input { padding: 5px; }
+    button { padding: 5px 10px; margin-top: 10px; }
+    #dashboard ul { list-style: none; padding: 0; }
+    #dashboard li { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    // GraphQL Endpoint
+    const GRAPHQL_ENDPOINT = 'YOUR_GRAPHQL_ENDPOINT_URL';
+
+    // GraphQL Queries/Mutations
+    const LOGIN_MUTATION = `
+      mutation Login($input: LoginInput!) {
+        login(input: $input) {
+          refreshToken
+        }
+      }
+    `;
+
+    const SEGMENT_QUERY = `
+      query Segment($segmentId: ID!) {
+        segment(segmentId: $segmentId) {
+          userIds
+        }
+      }
+    `;
+
+    const WALLET_CONNECTION_QUERY = `
+      query WalletConnection($userId: ID, $first: Int) {
+        walletConnection(userId: $userId, first: $first) {
+          edges {
+            node {
+              currentBalance
+              user {
+                firstName
+                lastName
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    // Reference to the main container
+    const appDiv = document.getElementById('app');
+
+    // Utility: send GraphQL request
+    async function sendGraphQLRequest(query, variables, token = null) {
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+      if (token) {
+        headers['Authorization'] = 'Bearer ' + token;
+      }
+      const response = await fetch(GRAPHQL_ENDPOINT, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({ query, variables })
+      });
+      return response.json();
+    }
+
+    // Render Login Form
+    function renderLogin() {
+      appDiv.innerHTML = `
+        <h2>Login</h2>
+        <form id="loginForm">
+          <label for="brandId">Brand ID:</label>
+          <input type="text" id="brandId" name="brandId" value="ab" required />
+          <label for="username">Username:</label>
+          <input type="email" id="username" name="username" value="ext-demo+ab@themill.io" required />
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" value="qwerty987" required />
+          <button type="submit">Login</button>
+        </form>
+        <p id="loginMessage"></p>
+      `;
+
+      document.getElementById('loginForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const brandId = document.getElementById('brandId').value;
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const variables = { input: { brandId, username, password } };
+
+        try {
+          const result = await sendGraphQLRequest(LOGIN_MUTATION, variables);
+          if (result.data && result.data.login && result.data.login.refreshToken) {
+            // Save token in sessionStorage
+            sessionStorage.setItem('refreshToken', result.data.login.refreshToken);
+            renderDashboard();
+          } else {
+            document.getElementById('loginMessage').innerText = 'Login failed.';
+          }
+        } catch (err) {
+          console.error('Login error:', err);
+          document.getElementById('loginMessage').innerText = 'Error during login.';
+        }
+      });
+    }
+
+    // Render Dashboard
+    async function renderDashboard() {
+      appDiv.innerHTML = `
+        <div id="dashboard">
+          <h2>Dashboard</h2>
+          <button id="refreshBtn">Refresh</button>
+          <ul id="userList"></ul>
+          <p id="dashboardMessage"></p>
+        </div>
+      `;
+
+      document.getElementById('refreshBtn').addEventListener('click', refreshDashboard);
+
+      // Fetch initial data
+      await refreshDashboard();
+
+      // Auto-refresh every 10 seconds
+      setInterval(refreshDashboard, 10000);
+    }
+
+    // Refresh Dashboard: fetch segment and wallet data
+    async function refreshDashboard() {
+      const token = sessionStorage.getItem('refreshToken');
+      if (!token) return;
+
+      document.getElementById('dashboardMessage').innerText = 'Refreshing...';
+
+      // Get segment data (userIds)
+      const segmentVariables = { segmentId: "umZLL5wkGIadFDJxamdJ" };
+      try {
+        const segmentResult = await sendGraphQLRequest(SEGMENT_QUERY, segmentVariables, token);
+        if (segmentResult.data && segmentResult.data.segment && segmentResult.data.segment.userIds) {
+          const userIds = segmentResult.data.segment.userIds;
+          const userList = document.getElementById('userList');
+          userList.innerHTML = ''; // clear previous data
+
+          // For each userId, fetch wallet connection data
+          for (const userId of userIds) {
+            const walletVariables = { userId, first: 1 };
+            try {
+              const walletResult = await sendGraphQLRequest(WALLET_CONNECTION_QUERY, walletVariables, token);
+              if (walletResult.data && walletResult.data.walletConnection && walletResult.data.walletConnection.edges && walletResult.data.walletConnection.edges.length > 0) {
+                const node = walletResult.data.walletConnection.edges[0].node;
+                const li = document.createElement('li');
+                li.innerText = `${node.user.firstName} ${node.user.lastName} has ${node.currentBalance}`;
+                userList.appendChild(li);
+              }
+            } catch (walletError) {
+              console.error('Error fetching wallet data for user ' + userId, walletError);
+            }
+          }
+        }
+        document.getElementById('dashboardMessage').innerText = '';
+      } catch (segmentError) {
+        console.error('Segment error:', segmentError);
+        document.getElementById('dashboardMessage').innerText = 'Error fetching segment data.';
+      }
+    }
+
+    // On page load, check if user is logged in
+    window.addEventListener('load', function() {
+      const token = sessionStorage.getItem('refreshToken');
+      if (token) {
+        renderDashboard();
+      } else {
+        renderLogin();
+      }
+    });
+  </script>
+</body>
+</html>
