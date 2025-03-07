@@ -317,7 +317,7 @@ nav ul li.category .submenu li a {
   position: absolute;
   z-index: 11111;
   top: 50px;
-  right: 100px;
+  right: 50px;
 }
 .ballance-button {
   background: #0056b3;
@@ -346,4 +346,69 @@ li::marker {
   .balances {
     display: none;
   } 
+}
+.balances {
+  position: absolute;
+  z-index: 11111;
+  top: 50px;
+  right: 50px;
+}
+.ballance-button {
+  background: #0056b3;
+  padding: 5px;
+  color: white;
+  width: 98%;
+  text-align: center;
+  margin-top: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px !important;
+}
+form {
+  div {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  div:first-child {
+    display: none;
+  }
+}
+li::marker {
+  font-size: 0 !important;
+}
+@media (max-width: 768px) {
+  .balances {
+    display: none;
+  } 
+}
+.wallet-list-wrapper {
+    .wallet-list-header,
+    .wallet-list {
+        display: flex;
+        flex-direction: column;
+        padding: 5px;
+        li {
+           display: flex;
+        flex-direction: row; 
+            justify-content: space-between;
+            .userids {
+                min-width: 200px;
+            }
+            .nickname {
+                min-width: 100px;
+            }
+            .amounts {
+                min-width: 100px;
+            }
+        }
+    }
+    .wallet-list-header {
+        background-color: #b30062;
+        color: white;
+    }
+    .wallet-list {
+        background-color: rgba(0,0,0,0.78);
+        color: white;
+    }
 }

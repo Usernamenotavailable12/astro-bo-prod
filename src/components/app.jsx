@@ -5,6 +5,24 @@ import { InMemoryCache } from '@apollo/client/cache';
 import { gql } from '@apollo/client/core';
 import { createHttpLink } from '@apollo/client/link/http';
 import { setContext } from '@apollo/client/link/context';
+import { onError } from '@apollo/client/link/error';
+
+// --- Error Link ---
+// This link handles GraphQL errors and logs the user out if "unauthenticated" is returned.
+const errorLink = onError(({ graphQLErrors }) => {
+  if (graphQLErrors) {
+    graphQLErrors.forEach((err) => {
+      if (
+        err.extensions?.code === 'UNAUTHENTICATED' ||
+        err.message.toLowerCase().includes('unauthenticated')
+      ) {
+        // Clear the token and reload the app to show the login prompt
+        sessionStorage.removeItem('refreshToken');
+        window.location.reload();
+      }
+    });
+  }
+});
 
 // --- GraphQL Queries/Mutations ---
 const LOGIN_MUTATION = gql`
@@ -30,8 +48,9 @@ const WALLET_CONNECTION_QUERY = gql`
         node {
           currentBalance
           user {
-            firstName
+            nickname
             lastName
+            userId
           }
         }
       }
@@ -54,8 +73,9 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
+// Combine the errorLink, authLink, and httpLink.
 const client = new ApolloClient({
-  link: authLink.concat(httpLink),
+  link: errorLink.concat(authLink).concat(httpLink),
   cache: new InMemoryCache(),
 });
 
@@ -114,7 +134,9 @@ function Login() {
             required
           />
         </div>
-        <button className='ballance-button' type="submit" disabled={loading}>Login</button>
+        <button className="ballance-button" type="submit" disabled={loading}>
+          Login
+        </button>
       </form>
       {loading && <p>Logging in...</p>}
       {error && <p>Error logging in. Please try again.</p>}
@@ -142,8 +164,9 @@ function Dashboard() {
           const node = response.data.walletConnection.edges[0].node;
           results.push({
             userId,
-            firstName: node.user.firstName,
+            firstName: node.user.nickname,
             lastName: node.user.lastName,
+            constUserId: node.user.userId,
             currentBalance: node.currentBalance,
           });
         }
@@ -166,7 +189,7 @@ function Dashboard() {
       if (segmentData?.segment?.userIds) {
         fetchWalletData(segmentData.segment.userIds);
       }
-    }, 30000);
+    }, 2400000);
     return () => clearInterval(interval);
   }, [segmentData, refetchSegment]);
 
@@ -176,21 +199,29 @@ function Dashboard() {
   return (
     <div>
       <h2>Dashboard</h2>
-      <button className='ballance-button' onClick={() => {
-        refetchSegment();
-        if (segmentData?.segment?.userIds) {
-          fetchWalletData(segmentData.segment.userIds);
-        }
-      }}>
+      <button
+        className="ballance-button"
+        onClick={() => {
+          refetchSegment();
+          if (segmentData?.segment?.userIds) {
+            fetchWalletData(segmentData.segment.userIds);
+          }
+        }}
+      >
         Refresh
       </button>
-      <ul>
+      <section className="wallet-list-wrapper">
+      <ul className="wallet-list-header">
+      <li><span className='userids'>UserIDs</span> <span className='nickname'>Username</span> <span className='amounts'>Amount</span></li>
+      </ul>
+      <ul className="wallet-list">
         {walletData.map((user, index) => (
           <li key={index}>
-            {user.firstName} {user.lastName} - {user.currentBalance}₾
+            <span className='userids'>{user.constUserId}</span> <span className='nickname'>{user.firstName}</span> <span className='amounts'>{user.currentBalance}₾</span>
           </li>
         ))}
       </ul>
+      </section>
     </div>
   );
 }
