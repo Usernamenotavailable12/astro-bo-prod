@@ -345,7 +345,7 @@ li::marker {
 @media (max-width: 768px) {
   .balances {
     display: none;
-  } 
+  }
 }
 .balances {
   position: absolute;
@@ -380,39 +380,56 @@ li::marker {
 @media (max-width: 768px) {
   .balances {
     display: none;
-  } 
+  }
 }
 .wallet-list-wrapper {
   .wallet-list-header,
   .wallet-list {
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    font-size: 13px !important;
+    gap: 2px;
+    li {
       display: flex;
-      flex-direction: column;
-      padding: 5px;
-      li {
-         display: flex;
-         flex-direction: row; 
-          justify-content: space-between;
-          .userids {
-              min-width: 175px;
-              border-right: solid 1px rgba(255,255,255,0.55);
-          }
-          .nickname {
-              min-width: 150px;
-              border-right: solid 1px rgba(255,255,255,0.55);
-              padding-left: 6px;
-          }
-          .amounts {
-              min-width: 85px;
-              padding-left: 6px;
-          }
+      flex-direction: row;
+      justify-content: space-between;
+      .userids {
+        min-width: 175px;
+        border-right: solid 1px rgba(255, 255, 255, 0.55);
       }
+      .nickname {
+        min-width: 150px;
+        border-right: solid 1px rgba(255, 255, 255, 0.55);
+        padding-left: 6px;
+      }
+      .amounts {
+        min-width: 85px;
+        padding-left: 6px;
+      }
+    }
   }
   .wallet-list-header {
-      background-color: #b30062;
-      color: white;
+    background-color: #b30062;
+    color: white;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
   }
   .wallet-list {
-      background-color: rgba(0,0,0,0.78);
-      color: white;
+    background-image: var(--sidebar-bg);
+    color: white;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+}
+
+.login-prompt {
+  background-image: var(--sidebar-bg);
+  color: white;
+  border-radius: 5px;
+  padding: 10px;
+  .ballance-button {
+    margin-top: 15px;
+    width: 96%;
   }
 }

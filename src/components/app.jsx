@@ -105,7 +105,7 @@ function Login() {
   };
 
   return (
-    <div>
+    <div className='login-prompt'>
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <div>
@@ -200,18 +200,6 @@ function Dashboard() {
 
   return (
     <div>
-      <h2>Dashboard</h2>
-      <button
-        className="ballance-button"
-        onClick={() => {
-          refetchSegment();
-          if (segmentData?.segment?.userIds) {
-            fetchWalletData(segmentData.segment.userIds);
-          }
-        }}
-      >
-        Refresh
-      </button>
       <section className="wallet-list-wrapper">
       <ul className="wallet-list-header">
       <li><span className='userids'>UserID</span> <span className='nickname'>Name</span> <span className='amounts'>Amount</span></li>
@@ -223,6 +211,17 @@ function Dashboard() {
           </li>
         ))}
       </ul>
+      <button
+        className="ballance-button"
+        onClick={() => {
+          refetchSegment();
+          if (segmentData?.segment?.userIds) {
+            fetchWalletData(segmentData.segment.userIds);
+          }
+        }}
+      >
+        Refresh
+      </button>
       </section>
     </div>
   );
