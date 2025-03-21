@@ -78,6 +78,11 @@
     .true strong:after {
       content: 'Deleted'
     }
+    .card-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
   </style>
 </head>
 
@@ -99,20 +104,58 @@
 
   <!-- Bootstrap Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    const fetchBtn = document.getElementById('fetchBtn');
+  <script>const fetchBtn = document.getElementById('fetchBtn');
     const queryInput = document.getElementById('queryInput');
     const dataContainer = document.getElementById('dataContainer');
     const alertContainer = document.getElementById('alertContainer');
-
+    
     // Transform status values to friendly labels
     function transformStatus(status) {
       if (status === 'GREEN') return `<span style="color:green;" class="active-selection green">Approved</span>`;
       else if (status === 'YELLOW') return `<span style="color:orange;" class="active-selection orange">Pending</span>`;
-      else if (status === 'RED') return `<span style="color:red;" class="active-selection red" >Rejected</span>`;
+      else if (status === 'RED') return `<span style="color:red;" class="active-selection red">Rejected</span>`;
       return status;
     }
-
+    
+    // Helper function to render rejectLabels as styled spans
+    function renderRejectLabels(rejectLabels) {
+      if (!rejectLabels) return '';
+    
+      // If rejectLabels is an array, render each label in its own span.
+      if (Array.isArray(rejectLabels)) {
+        return rejectLabels
+          .map(label => `<span style="color:red; background-color: rgba(255, 0, 0, 0.1); border: 1px solid red; border-radius: 10px; padding: 2px 10px;" class="red last">${label}</span>`)
+          .join(' ');
+      }
+    
+      // If it's a string, check if it looks like a JSON array (e.g., '["DUPLICATE", "REGULATIONS_VIOLATIONS"]')
+      if (typeof rejectLabels === 'string') {
+        const trimmed = rejectLabels.trim();
+        if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+          try {
+            const parsed = JSON.parse(trimmed);
+            if (Array.isArray(parsed)) {
+              return parsed
+                .map(label => `<span style="color:red; background-color: rgba(255, 0, 0, 0.1); border: 1px solid red; border-radius: 10px; padding: 2px 10px;" class="red last">${label}</span>`)
+                .join(' ');
+            }
+          } catch (e) {
+            // If JSON parsing fails, fall back to treating as a normal string.
+          }
+        }
+        // Otherwise, if the string contains commas, split it.
+        if (trimmed.includes(',')) {
+          return trimmed
+            .split(',')
+            .map(label => `<span style="color:red; background-color: rgba(255, 0, 0, 0.1); border: 1px solid red; border-radius: 10px; padding: 2px 10px;" class="red last">${label.trim()}</span>`)
+            .join(' ');
+        } else {
+          return `<span style="color:red; background-color: rgba(255, 0, 0, 0.1); border: 1px solid red; border-radius: 10px; padding: 2px 10px;" class="red last">${rejectLabels}</span>`;
+        }
+      }
+      return '';
+    }
+    
     fetchBtn.addEventListener('click', () => {
       const query = queryInput.value.trim();
       if (!query) {
@@ -121,7 +164,7 @@
       }
       fetchData(query);
     });
-
+    
     function showAlert(message, type) {
       alertContainer.innerHTML = `
         <div class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -130,7 +173,7 @@
         </div>
       `;
     }
-
+    
     async function fetchData(query) {
       dataContainer.innerHTML = `
         <div class="spinner-container">
@@ -150,10 +193,10 @@
         dataContainer.innerHTML = '';
       }
     }
-
+    
     function renderData(data) {
       dataContainer.innerHTML = '';
-
+    
       // --- Applicants Section ---
       if (data.searchData && data.searchData.list && Array.isArray(data.searchData.list.items)) {
         const searchSection = document.createElement('div');
@@ -161,6 +204,10 @@
         data.searchData.list.items.forEach((item, index) => {
           const applicant = item.applicant;
           const statuses = item.statuses;
+          const rejectLabels = applicant.review && applicant.review.reviewResult
+            ? applicant.review.reviewResult.rejectLabels
+            : undefined;
+    
           const collapseClassOne = index === data.searchData.list.items.length - 1 ? 'collapse show' : 'collapse';
           const summary = `
             <p><strong>SumSub ID:</strong> ${applicant.id}</p>
@@ -179,8 +226,13 @@
           card.className = 'card mb-3';
           card.innerHTML = `
             <div class='card-header ${applicant.deleted}' data-bs-toggle="collapse" data-bs-target="#collapseApplicant${index}" aria-expanded="false">
-              <strong>Attempt ${index + 1} ></strong> ${transformStatus(applicant.review && applicant.review.reviewResult ? applicant.review.reviewResult.reviewAnswer : 'N/A')}
-            </div>
+              <div>
+                <strong>Attempt ${index + 1}</strong> 
+                ${transformStatus(applicant.review && applicant.review.reviewResult ? applicant.review.reviewResult.reviewAnswer : 'N/A')}
+              </div>
+              <div>
+                ${renderRejectLabels(rejectLabels)}</div> 
+            </div> 
             <div id="collapseApplicant${index}" class='${collapseClassOne}'>
               <div class="card-body">
                 ${summary}
@@ -195,15 +247,14 @@
         });
         dataContainer.appendChild(searchSection);
       }
-
+    
       // --- Inspection Data Section ---
       // Expecting data.inspectionData as an array of inspection attempts
       if (data.inspectionData && Array.isArray(data.inspectionData) && data.inspectionData.length > 0) {
         const inspSection = document.createElement('div');
         inspSection.innerHTML = `<h2>Attempt details</h2>
           <button class="btn btn-sm btn-outline-secondary mb-2" data-bs-toggle="collapse" data-bs-target="#allAttempts">Show All Attempts</button>
-          <div id="allAttempts" class="collapse">
-          </div>`;
+          <div id="allAttempts" class="collapse"></div>`;
         const allAttemptsDiv = inspSection.querySelector('#allAttempts');
         data.inspectionData.forEach((attempt, index) => {
           // Each attempt is an object: { applicantId, inspectionData }
@@ -250,7 +301,7 @@
         dataContainer.appendChild(inspSection);
       }
     }
-  </script>
+    </script>
 </body>
 
 </html>
