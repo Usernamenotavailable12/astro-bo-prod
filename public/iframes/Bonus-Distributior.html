@@ -108,7 +108,7 @@
       const email = document.getElementById("username").value;
       const password = document.getElementById("password").value;
 
-      const response = await fetch("https://www.ambassadoribet.com/_internal/gql", {
+      const response = await fetch("https://api-tma1-prd.themill.tech/gql-admin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -151,7 +151,7 @@
           const [userId, bonusId] = limitedRows[i];
           if (!userId || !bonusId) continue;
 
-          const response = await fetch("https://www.ambassadoribet.com/_internal/gql", {
+          const response = await fetch("https://api-tma1-prd.themill.tech/gql-admin", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
             body: JSON.stringify({
