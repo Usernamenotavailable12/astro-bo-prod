@@ -61,7 +61,7 @@ const WALLET_CONNECTION_QUERY = gql`
 
 // --- Apollo Client Setup ---
 const httpLink = createHttpLink({
-  uri: 'https://www.ambassadoribet.com/_internal/gql', // Replace with your GraphQL endpoint
+  uri: 'https://api-tma1-prd.themill.tech/gql-admin', // Replace with your GraphQL endpoint
 });
 
 const authLink = setContext((_, { headers }) => {
