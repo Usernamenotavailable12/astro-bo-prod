@@ -132,7 +132,7 @@
         };
 
         try {
-          const response = await fetch("https://www.ambassadoribet.com/_internal/gql", {
+          const response = await fetch("https://api-tma1-prd.themill.tech/gql-admin", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(loginPayload)
@@ -186,7 +186,7 @@ console.log(to);
           };
 
           // 1. Fetch total deposit and withdrawal
-          const totalStatsResponse = await fetch("https://www.ambassadoribet.com/_internal/gql", {
+          const totalStatsResponse = await fetch("https://api-tma1-prd.themill.tech/gql-admin", {
             method: "POST",
             headers,
             body: JSON.stringify({
@@ -204,7 +204,7 @@ console.log(to);
           const { totalDeposit, totalWithdraw } = totalStats.data.payUserStats;
 
           // 2. Fetch today's deposit and withdrawal
-          const todayStatsResponse = await fetch("https://www.ambassadoribet.com/_internal/gql", {
+          const todayStatsResponse = await fetch("https://api-tma1-prd.themill.tech/gql-admin", {
             method: "POST",
             headers,
             body: JSON.stringify({
@@ -222,7 +222,7 @@ console.log(to);
           const { totalDeposit: todayDeposit, totalWithdraw: todayWithdraw } = todayStats.data.payUserStats;
 
           // 3. Fetch pending withdrawals
-          const pendingWithdrawalsResponse = await fetch("https://www.ambassadoribet.com/_internal/gql", {
+          const pendingWithdrawalsResponse = await fetch("https://api-tma1-prd.themill.tech/gql-admin", {
             method: "POST",
             headers,
             body: JSON.stringify({
@@ -243,7 +243,7 @@ console.log(to);
           const pendingAmounts = pendingWithdrawals.data.paymentConnection.edges.map(edge => edge.node.amount);
 
           // 4. Fetch wallet information
-          const walletResponse = await fetch("https://www.ambassadoribet.com/_internal/gql", {
+          const walletResponse = await fetch("https://api-tma1-prd.themill.tech/gql-admin", {
             method: "POST",
             headers,
             body: JSON.stringify({
@@ -272,7 +272,7 @@ console.log(to);
           const balanceAfterWithdrawal = parseFloat(wallet.currentBalance) - pendingAmounts.reduce((sum, val) => sum + parseFloat(val), 0);
 
           // 5. Fetch game round connection
-          const gameRoundResponse = await fetch("https://www.ambassadoribet.com/_internal/gql", {
+          const gameRoundResponse = await fetch("https://api-tma1-prd.themill.tech/gql-admin", {
             method: "POST",
             headers,
             body: JSON.stringify({
