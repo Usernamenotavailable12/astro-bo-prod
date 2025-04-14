@@ -76,3 +76,23 @@ import App from '../components/app.jsx';
 </nav>
 <Dock/>
 <App client:load />
+<dialog id="beta-dialog" open style="
+  border: none;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 400px;
+  width: 90%;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  font-family: sans-serif;
+  position: fixed;
+  bottom: 40px;
+  left: 40px;
+  z-index: 1000;
+">
+  <h3 style="margin-top: 0;">🚀 Try the new Backoffice Beta</h3>
+  <p style="margin: 10px 0; line-height: .5">The new backoffice is now live <p style="color: red; font-weight: bold;">This version will be retired soon.</p></p>
+  <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+    <a target="_blank" href="https://stl-test-next.netlify.app" style="background: #10b981; color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px;">Try Now</a>
+  </div>
+</dialog>
