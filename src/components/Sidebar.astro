@@ -78,21 +78,52 @@ import App from '../components/app.jsx';
 <App client:load />
 <dialog id="beta-dialog" open style="
   border: none;
-  border-radius: 10px;
-  padding: 20px;
-  max-width: 400px;
-  width: 90%;
-  background: white;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  font-family: sans-serif;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 450px;
+  width: 95%;
+  background: linear-gradient(135deg, #ffffff, #f0f7ff);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  font-family: 'Inter', sans-serif;
   position: fixed;
-  bottom: 40px;
-  left: 40px;
+  bottom: 50px;
+  left: 50px;
   z-index: 1000;
+  animation: slideIn 0.5s ease-out;
 ">
-  <h3 style="margin-top: 0;">🚀 Try the new Backoffice Beta</h3>
-  <p style="margin: 10px 0; line-height: .5">The new backoffice is now live <p style="color: red; font-weight: bold;">This version will be retired soon.</p></p>
-  <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-    <a target="_blank" href="https://stl-test-next.netlify.app" style="background: #10b981; color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px;">Try Now</a>
+  <style>
+    @keyframes slideIn {
+      from { transform: translateY(100px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    #beta-dialog a:hover {
+      transform: translateY(-2px);
+      transition: transform 0.2s;
+    }
+  </style>
+  <h3 style="margin: 0 0 12px; font-size: 24px; color: #1e3a8a; display: flex; align-items: center; gap: 8px;">
+    <span style="font-size: 28px;">🚀</span> Discover the Backoffice Beta!
+  </h3>
+  <p style="margin: 0 0 8px; line-height: 1.5; color: #374151;">
+    Experience the new backoffice now live with enhanced features!
+  </p>
+  <p style="margin: 8px 0; color: #dc2626; font-weight: 600; font-size: 14px;">
+    ⚠️ This version will be retired soon!
+  </p>
+  <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+    <a target="_blank" href="https://stl-test-next.netlify.app" style="
+      background: linear-gradient(to right, #3b82f6, #10b981);
+      color: white;
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      animation: pulse 2s infinite;
+    ">Try Now</a>
   </div>
 </dialog>
